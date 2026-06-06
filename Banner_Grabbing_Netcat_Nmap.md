@@ -20,24 +20,24 @@ Used for simple, plaintext protocols (like FTP, HTTP, SSH).
 ```bash
 nc -nv <Target_IP> <Target_Port>
 ```
-*-n: Disables DNS resolution (speed and stealth).*
+* **-n:** Disables DNS resolution (speed and stealth).*
 
-*-v: Verbose mode. Absolutely critical; without it, Netcat will not report connection failures or successes.*
+* **-v:** Verbose mode. Absolutely critical; without it, Netcat will not report connection failures or successes.*
 
 ### 2. Automated Service Versioning (Nmap)
 Used when services communicate in complex binary (like SMB or RPC) rather than plaintext, or when scanning at scale. Nmap sends protocol-specific probes to force a response and translates the binary into readable text.
 ```bash
 nmap -sV -p <Target_Port> <Target_IP>
 ```
-*-sV: Instructs Nmap to interrogate the service to determine its exact version.*
-*-p: Specifies the port(s) to scan (e.g., -p 21, -p- for all ports, or -p 135,139,445).*
+* **-sV:** Instructs Nmap to interrogate the service to determine its exact version.*
+* **-p:** Specifies the port(s) to scan (e.g., -p 21, -p- for all ports, or -p 135,139,445).*
 
 ### 3. RPC Endpoint Enumeration (rpcinfo)
 When Nmap discovers open high-number ports (49152–65535) returning unrecognized binary data, these are often dynamic Microsoft RPC services. rpcinfo bypasses standard banner grabbing by querying the RPC Endpoint Mapper (Port 135) directly.
 ```bash
 rpcinfo -p <Target_IP>
 ```
-*Function: Dumps the entire registry of routing tables, revealing the exact internal services (like Task Scheduler or Event Viewer) mapped to those high ports.*
+* **Function:** Dumps the entire registry of routing tables, revealing the exact internal services (like Task Scheduler or Event Viewer) mapped to those high ports.*
 
 ### 4. Creating a Fake Banner (Defensive/Lab Testing)
 Used to simulate a vulnerable service or test firewall configurations.
